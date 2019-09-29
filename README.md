@@ -1,10 +1,5 @@
 # AssetIO
 TD技能学院第三期-Python基础课-期中作业
-# 项目文件结构
-- image(放置索引图片)
-- lib（第三方包）
-- resource（用于操作的文件）
-- script（代码）
 
 # 作业说明
 ### 概述
