@@ -14,6 +14,7 @@ def move_file(dec_path, new_name):
     shutil.move(dec_path, new_name)
 
 
+# 对源文件的路径进行处理，返回目标文件的路径，不对文件夹进行处理
 def exec_filename(source_path, dec_path):
     file_path, filename = os.path.split(dec_path)
     filename_temp = file_path.split("/")
@@ -24,79 +25,53 @@ def exec_filename(source_path, dec_path):
 
 def execfoder_filename(source_path, dec_path):
     shutil.copy(source_path, dec_path)
-    file_path, filename = os.path.split(dec_path)
-    filename_temp = file_path.split("/")
-    new_name = file_path + "/" + filename_temp[-4] + "_" + filename_temp[-1].capitalize() + "_" +\
-               filename_temp[-2].capitalize() + "." + filename.split(".")[-1]
+    new_name, source_path = exec_filename(source_path, dec_path)
     move_file(dec_path, new_name)
     return new_name, source_path
 
 
+def exception(dec_folder):
+    try:
+        os.makedirs(dec_folder)
+    except FileExistsError:
+        pass
+
+
+def traverfile_changename(_type, filepath, project_name, position, new_old_name_message, path, lable):
+    for file in filepath[position]:
+        dec_folder = os.path.split(path)[0] + "/" + project_name + "Asset/" + _type + "/" + \
+                     str(file.split("_")[-2]).capitalize()
+        if lable:
+            exception(dec_folder)
+            newname, oldname = execfoder_filename(file, dec_folder + "/" + file.split("/")[-1])
+            new_old_name_message[newname] = oldname
+        else:
+            newname, oldname = exec_filename(file, dec_folder + "/" + file.split("/")[-1])
+            new_old_name_message[newname] = oldname
+
+
 # 返回一个新旧路径的字典 不创建文件夹
-def create_new_old(assert_Type, filepath, project_name):
+def create_new_old(assert_Type, filepath, project_name, path, lable=0):
     new_old_name_message = {}
     for _type in assert_Type:
         # 将文件放入存好的文件夹中
         if _type == "Pro":
-            for file in filepath[2]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                newname, oldname = exec_filename(file, dec_folder + "/" + file.split("/")[-1])
-                new_old_name_message[newname] = oldname
+            traverfile_changename(_type, filepath, project_name, 2, new_old_name_message, path, lable)
 
         elif _type == "Env":
-            for file in filepath[1]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                newname, oldname = exec_filename(file, dec_folder + "/" + file.split("/")[-1])
-                new_old_name_message[newname] = oldname
+            traverfile_changename(_type, filepath, project_name, 1, new_old_name_message, path, lable)
 
         elif _type == "Cha":
-            for file in filepath[0]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                newname, oldname = exec_filename(file, dec_folder + "/" + file.split("/")[-1])
-                new_old_name_message[newname] = oldname
-    # print("new_old_name_message", new_old_name_message)
+            traverfile_changename(_type, filepath, project_name, 0, new_old_name_message, path, lable)
     return new_old_name_message
 
 
 # 返回一个新旧路径的字典 创建文件夹
-def createfolder_newolddict(assert_Type, filepath, project_name):
+def createfolder_newolddict(assert_Type, filepath, project_name, path):
     new_old_name = {}
-    for _type in assert_Type:
-        # 将文件放入存好的文件夹中
-        if _type == "Pro":
-            for file in filepath[2]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                try:
-                    os.makedirs(dec_folder)
-                except FileExistsError:
-                    pass
-                finally:
-                    newname, oldname = execfoder_filename(file, dec_folder + "/" + file.split("/")[-1])
-                    new_old_name[newname] = oldname
-
-        elif _type == "Env":
-            for file in filepath[1]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                os.makedirs(dec_folder)
-                newname, oldname = execfoder_filename(file, dec_folder + "/" + file.split("/")[-1])
-                new_old_name[newname] = oldname
-
-        elif _type == "Cha":
-            for file in filepath[0]:
-                dec_folder = "D:/school/TdClass/AssetIO/example/project/" + project_name + "Asset/" + _type + "/" + \
-                             str(file.split("_")[-2]).capitalize()
-                os.makedirs(dec_folder)
-                newname, oldname = execfoder_filename(file, dec_folder + "/" + file.split("/")[-1])
-                new_old_name[newname] = oldname
-
-    else:
-        print("the file struct has created!!!")
-        return new_old_name
+    new_old_name = create_new_old(assert_Type, filepath, project_name, path, lable=1)
+    print("the file struct has created!!!")
+    return new_old_name
 
 
 if __name__ == "__main__":

@@ -21,23 +21,22 @@ def replaceFile(new, old):
 
 
 class ZipFile():
-    def __init__(self):
-        self.oldpath = "D:/school/TdClass/AssetIO/example/README.md"
+    def __init__(self, path):
+        self.oldpath = os.path.split(os.path.split(os.path.split(path)[0])[0])[0] + "/core/README.md"
+        self.path = path
 
     def crate_file(self):
-        with zipfile.ZipFile("D:/school/TdClass/AssetIO/example/project/" + time.strftime("%d-%m-%Y") + ".zip", "w",
+        with zipfile.ZipFile(os.path.split(self.path)[0] + "/" + time.strftime("%d-%m-%Y") + ".zip", "w",
                              zipfile.ZIP_DEFLATED) as fzip:
             fzip.write(self.oldpath)
             fzip.close()
 
     def add_file(self, newpath, oldpath):
-        with zipfile.ZipFile("D:/school/TdClass/AssetIO/example/project/" + time.strftime("%d-%m-%Y") + ".zip", "a",
+        with zipfile.ZipFile(os.path.split(self.path)[0] + "/" + time.strftime("%d-%m-%Y") + ".zip", "a",
                              zipfile.ZIP_DEFLATED) as fzip:
             oldfilename = str(oldpath).split("/")[-1]
-            print(oldfilename)
             replaceFile(newpath, oldpath)
             oldpath2 = str(oldpath).split("/")[-1] + "/" + oldfilename
-            # os.rename(oldpath,oldpath2)
             fzip.write(oldpath)
             fzip.close()
 
