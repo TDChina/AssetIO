@@ -5,9 +5,10 @@
 # import datetime
 """
 创建两个json文件记录资产信息，
-一个以资产名称为索引，一个以文件接收日期为索引
+一个以资产名称为索引，记录版本信息，
+一个以文件接收日期为索引，记录当天接收文件的内容
 为了查找文件两种检索方式都不需要以遍历所有资产的方式进行
-"""
+
 
 import json
 import os
@@ -25,7 +26,7 @@ def record_input_log(data, ipath, log_path):
     else:
         f = open(asscet_json, 'w')
         f.close()
-        assect_dict = {'asscet_name': [{0: {'time': '', 'episode': '', 'asscet_typ': ''}}]}
+        assect_dict = {'asscet_name': [{'time': '', 'episode': '', 'asscet_typ': ''}]}
 
     # 判断receive_log是否存在
     # 如果存在，读取内容，如果不存在，创建一个
@@ -36,44 +37,59 @@ def record_input_log(data, ipath, log_path):
     else:
         f = open(receive_json, 'w')
         f.close()
+        # 字典格式
         time_dict = {'time': {'episode': ['asscet_name']}}
 
-    # 遍历data文件夹获取episode
+    # 依次向下遍历，获取资产名称
     episode_list = os.listdir(rf'{ipath}\{data}')
     for episode in episode_list:
-
-        # 遍历episode文件夹获取资产名称
         asscet_list = os.listdir(rf'{ipath}\{data}\{episode}')
-        for asscet in asscet_list:
-            # 获取资产名称
-            asscet = os.listdir(rf'{ipath}\{data}\{episode}\{asscet}')[0]
-            # 确认当前资产版本
-            version_dict = assect_dict.get(asscet, {0: ''})
-            version_int = list(version_dict.keys())[0]+1
+        for asscet_dir in asscet_list:
+            print(rf'{ipath}\{data}\{episode}\{asscet_dir}')
+            asscet_name = os.listdir(rf'{ipath}\{data}\{episode}\{asscet_dir}')[0]
+
             # 正则匹配，防止有多余垃圾文件
-            file_name = re.search(r'ep\d{2}_[a-z]+_(?:env|cha|pro)\.ma', asscet, re.I).group()
+            file_name = re.search(r'ep\d{2}_[a-z]+_(?:env|cha|pro)\.ma', asscet_name, re.I).group()
             # 切割资产名称，获取资产版本信息存储到列表
             episode, asscet, asscet_typ, _ = re.split(r'_|.ma', file_name)
             asscet = asscet.title()
-
-            time_dict[data][episode].append(file_name)
-            # 判断版本: '', '',
-            if version_int == 1:
-                assect_dict[asscet] = [{version_int: {'time': data, 'episode': episode, 'asscet_typ': asscet_typ}}]
+            # 更新time_dict，将获得的资产放在对应集数下的list
+            time_dict.setdefault(data, {episode: []})
+            # print(time_dict)
+            # time_dict[data][episode].append(file_name)
+            # 更新assect_dict，判断版本
+            if not assect_dict.get(asscet, False):
+                # 如果资产不存在，增加键值对，将资产复制到对应的项目目录中
+                assect_dict[asscet] = [{'time': data, 'episode': episode, 'asscet_typ': asscet_typ}]
+                os.makedirs(rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\backup')
+                os.rename(rf'{ipath}\{data}\{episode}\{asscet_dir}\{file_name}',
+                          rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\{asscet}.ma')
             else:
-                assect_dict[asscet].append({version_int: {'time': data, 'episode': episode, 'asscet_typ': asscet_typ}})
-
-            # 将资产复制到对应的项目目录中
-            # 如果已经存在，则放入old_version并创建接收目录的文件夹
+                # 如果资产不存在，增加版本，将资产升版本，并备份旧版本
+                backup_file = assect_dict[asscet][-1]
+                assect_dict[asscet].append({'time': data, 'episode': episode, 'asscet_typ': asscet_typ})
+                os.makedirs(rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\backup\data')
+                os.rename(rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\{asscet}.ma',
+                          rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\backup\{asscet}.ma')
+                os.rename(rf'{ipath}\{data}\{episode}\{asscet_dir}\{file_name}',
+                          rf'Z:\Project\TDC\Asset\{asscet_typ}\{asscet}\{asscet}.ma')
     # 将新的字典写入json中
     with open(asscet_json, 'w') as f:
         json.dump(assect_dict, f)
     with open(receive_json, 'w') as f:
         json.dump(time_dict, f)
 
-ipath = r'Z:\example\project\Inbox'
-log_path = r'Z:\log'
-data = os.listdir(ipath)
 
-for i in data:
-    record_input_log(i, ipath, log_path)
+if __name__ == '__main__':
+
+    ipath = r'Z:\example\project\Inbox'
+    log_path = r'Z:\log'
+    receive_json = rf'{log_path}\receive_log.json'
+    if os.path.exists(receive_json):
+        os.remove(receive_json)
+    asscet_json = rf'{log_path}\asscet_log.json'
+    if os.path.exists(asscet_json):
+        os.remove(asscet_json)
+    data = os.listdir(ipath)
+
+"""

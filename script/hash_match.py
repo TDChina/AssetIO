@@ -2,8 +2,7 @@
 # 导入hashlib模块
 import hashlib
 
-
-def hashi_match(file_path, bytes=1024):
+def get_hash(file_path, bytes=1024):
     # 创建一个md5算法对象
     md5_1 = hashlib.md5()
     with open(file_path, 'rb') as f:

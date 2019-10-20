@@ -1,0 +1,1 @@
+Z:\envs\python3\python.exe Z:/script/creat_input_log.py
