@@ -85,7 +85,7 @@ def zip_files(dir_path, zip_file_path):
 
     zip = zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED)
 
-    for path, dirnames, filenames in os.walk(dir_path):
+    for path, dir_names, filenames in os.walk(dir_path):
 
         filter_path = path.replace(dir_path, '')
 
