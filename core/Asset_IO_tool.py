@@ -87,6 +87,5 @@ def copy_input_files():
     return assets_data, saved_data_file
 
 
-output_assets_str = 'victor'
-print(output_assets_str)
+copy_input_files()
 
