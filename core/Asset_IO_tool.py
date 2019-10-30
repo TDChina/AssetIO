@@ -7,6 +7,10 @@ import json
 
 
 def get_input_data():
+    """
+     get input directory and get all the maya files info
+    :return: maya files data and input directory
+    """
     input_dir = input("请选择客户文件路径>>>>>>>>>>")
     # r'C:\Users\geyij\Desktop\new\AssetIO\example\project\Inbox\20191001'
     input_data = {}
@@ -26,11 +30,21 @@ def get_input_data():
 
 
 def create_directory(directory):
+    """
+    check if the dir exists and create it
+    :param directory:
+    :return:
+    """
     if not os.path.exists(directory):
         os.makedirs(directory)
 
 
 def get_file_time(directory):
+    """
+    get the create time of file or folder
+    :param directory:
+    :return: create_time
+    """
     file_time_sec = os.path.getctime(directory)
     file_time_struct = time.localtime(file_time_sec)
     file_time_str = time.strftime('%Y-%m-%d-%H-%M-%S', file_time_struct)
@@ -38,6 +52,12 @@ def get_file_time(directory):
 
 
 def bak_file(directory):
+    """
+    get a full path file and create a bak folder with file create time
+    then bak file
+    :param directory:
+    :return:
+    """
     file_directory = directory
     file_path = os.path.split(file_directory)[0]
     file_name = os.path.split(file_directory)[1]
@@ -50,6 +70,13 @@ def bak_file(directory):
 
 
 def save_data_file(data, name, directory):
+    """
+    save given date with given name in given dir
+    :param data: dic data
+    :param name: date file name
+    :param directory: target dir
+    :return: saved file full path
+    """
     save_data = data
     save_name = name + '.json'
     save_path = directory
@@ -60,6 +87,14 @@ def save_data_file(data, name, directory):
 
 
 def copy_input_files():
+    """
+    get a show path
+    get input data from input dir
+    save client files to right dir
+    update assets data
+    and save data to a json file
+    :return: asset data dic and data file path
+    """
     assets_data, input_dir = get_input_data()
     show_dir = input("请选择项目路径>>>>>>>>>>>")
     # r'C:\Users\geyij\Desktop\new\AssetIO\example\project\TDC'
